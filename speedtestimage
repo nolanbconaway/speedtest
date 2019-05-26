@@ -1,0 +1,113 @@
+#! /usr/bin/env python
+
+import datetime
+import argparse
+
+import speedtest
+from PIL import Image, ImageDraw, ImageFont
+
+
+def do_speedtest() -> dict:
+    """Run the speedtest under the default config.
+    
+    Returns a dictonary with keys specifying each metric followed by its unit. Like `metric_unit`.
+    """
+    s = speedtest.Speedtest()
+    s.get_servers([])
+    s.get_best_server()
+    s.download()
+    s.upload()
+
+    results = s.results.dict()
+
+    return dict(
+        download_mb=round(results["download"] / 8e6, 1),
+        upload_mb=round(results["upload"] / 8e6, 1),
+        ping_ms=round(results["ping"], 1),
+    )
+
+
+def text_to_image(
+    text: str, fill: tuple = (0, 0, 0), background: tuple = (255, 255, 255, 0)
+) -> Image:
+    """Build a simple image with text on it. 
+    
+    Options for the text and background color. The size of the image was predetermined based
+    on the amount of space you'd need for the current text.
+    """
+    img = Image.new("RGBA", (350, 100), color=background)
+    font = ImageFont.truetype("Courier", 15)
+
+    d = ImageDraw.Draw(img)
+    d.text((10, 10), text, fill=fill, font=font)
+
+    return img
+
+
+def rgba_string(v: str) -> tuple:
+    """Parse a comma delimited RGBA string.
+    
+    This does checkes to ensure its a valid RGBA string, then parses it and returns the tuple.
+    """
+    # split comma delimited string
+    parts = v.split(",")
+
+    # check all values are digits
+    if not all(map(lambda x: x.isdigit(), parts)):
+        raise argparse.ArgumentTypeError(f"Nondigit value detected, got {v}.")
+
+    parts = tuple(int(i) for i in parts)
+
+    if len(parts) != 4:
+        raise argparse.ArgumentTypeError(f"RGBA requires four values, got {v}")
+
+    if not all(map(lambda x: x <= 255 and x >= 0, parts)):
+        raise argparse.ArgumentTypeError(f"All values must be 0-255, got {v}")
+
+    return parts
+
+
+# cLI handler
+if __name__ == "__main__":
+
+    # get args
+    parser = argparse.ArgumentParser()
+    parser.add_argument("out", help="Save destination. Must end in .png", type=str)
+    parser.add_argument(
+        "-t",
+        "--txtcolor",
+        help="Text color. Comma delimited RGBA. Default=0,0,0,255 (black).",
+        type=rgba_string,
+        default="0,0,0,255",
+        nargs="?",
+    )
+    parser.add_argument(
+        "-b",
+        "--backcolor",
+        help="Back color. Comma delimited RGBA. Default=255,255,255,0 (transparent white).",
+        type=rgba_string,
+        default="255,255,255,0",
+        nargs="?",
+    )
+
+    # super secret. run it in test mode.
+    parser.add_argument("--test", action="store_true", help=argparse.SUPPRESS)
+
+    args = parser.parse_args()
+
+    # validate out arg
+    if not args.out.endswith(".png"):
+        raise ValueError(f"Invalid out path: {args.out}.")
+
+    results = (
+        dict(download_mb=100.5, upload_mb=30.2, ping_ms=18.2)
+        if args.test
+        else do_speedtest()
+    )
+    text = "My network speedtest! \n"
+    text += "\n".join(
+        f"""{k.split('_')[0]:9s}: {v} {k.split('_')[1]}""" for k, v in results.items()
+    )
+    text += "\n" + f"""  as of {datetime.datetime.utcnow().strftime('%c')} UTC"""
+    img = text_to_image(text, fill=args.txtcolor, background=args.backcolor)
+    img.save(args.out, format="png")
