@@ -67,7 +67,7 @@ def rgba_string(v: str) -> tuple:
     return parts
 
 
-# cLI handler
+# CLI handler
 if __name__ == "__main__":
 
     # get args

@@ -1,12 +1,12 @@
-# speedtest
+# speedtestimage
 
 A command line utility to save the results of a speed test to an image.
 
-Thwis is useful if, for example, you want to serve the result as an image over HTTP.
+This is useful if, for example, you want to serve the result as an image over HTTP.
 
 ## Install
 
-I'm just installing voer git for now.
+I'm just installing over git for now.
 
 ```sh
 pip install git+https://github.com/nolanbconaway/speedtestimage.git
