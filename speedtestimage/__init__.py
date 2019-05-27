@@ -2,6 +2,7 @@
 
 import speedtest
 from PIL import Image, ImageDraw, ImageFont
+import os
 
 
 def do_speedtest() -> dict:
@@ -32,9 +33,10 @@ def text_to_image(
     Options for the text and background color. The size of the image was predetermined based
     on the amount of space you'd need for the current text.
     """
-    img = Image.new("RGBA", (350, 100), color=background)
-
-    font = ImageFont.truetype("Courier", 15)
+    img = Image.new("RGBA", (350, 105), color=background)
+    font = ImageFont.truetype(
+        os.path.join(os.path.split(__file__)[0], "Courier.ttf"), 15
+    )
 
     d = ImageDraw.Draw(img)
     d.text((10, 10), text, fill=fill, font=font)

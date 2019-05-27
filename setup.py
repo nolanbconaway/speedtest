@@ -8,5 +8,6 @@ setup(
     version="0.1",
     install_requires=["speedtest-cli", "pillow"],
     scripts=["speedtestimage/speedtestimage"],
+    package_data={"speedtestimage": ["Courier.ttf"]},
 )
 
