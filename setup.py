@@ -1,9 +1,12 @@
+"""Setup file for the module."""
+
 from setuptools import setup
 
 setup(
     name="speedtestimage",
+    packages=["speedtestimage"],
     version="0.1",
     install_requires=["speedtest-cli", "pillow"],
-    scripts=["speedtestimage"],
+    scripts=["speedtestimage/speedtestimage"],
 )
 
