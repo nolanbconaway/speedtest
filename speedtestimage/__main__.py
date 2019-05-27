@@ -5,7 +5,6 @@ import datetime
 
 from speedtestimage import do_speedtest
 from speedtestimage import text_to_image
-from speedtestimage import rgba_string
 
 
 def rgba_string(v: str) -> tuple:
