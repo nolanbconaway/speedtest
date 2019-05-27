@@ -3,6 +3,7 @@
 import speedtest
 from PIL import Image, ImageDraw, ImageFont
 import os
+from collections import OrderedDict
 
 
 def do_speedtest() -> dict:
@@ -10,19 +11,18 @@ def do_speedtest() -> dict:
     
     Returns a dictonary with keys specifying each metric followed by its unit. Like `metric_unit`.
     """
-    s = speedtest.Speedtest()
-    s.get_servers([])
+    s = speedtest.Speedtest(source_address=None, timeout=10, secure=False)
     s.get_best_server()
     s.download()
-    s.upload()
+    s.upload(pre_allocate=True)
 
-    results = s.results.dict()
+    results_raw = s.results.dict()
 
-    return dict(
-        download_mb=round(results["download"] / 8e6, 1),
-        upload_mb=round(results["upload"] / 8e6, 1),
-        ping_ms=round(results["ping"], 1),
-    )
+    results = OrderedDict()
+    results["download_mbits/s"] = round(results_raw["download"] * 1e-6, 1)
+    results["upload_mbits/s"] = round(results_raw["upload"] * 1e-6, 1)
+    results["ping_ms"] = round(results_raw["ping"], 1)
+    return results
 
 
 def text_to_image(
