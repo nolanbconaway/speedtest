@@ -5,9 +5,9 @@ from setuptools import setup
 setup(
     name="speedtestimage",
     packages=["speedtestimage"],
-    version="0.1.1",
+    version="0.1.2",
     install_requires=["speedtest-cli", "pillow"],
-    scripts=["speedtestimage/speedtestimage"],
+    entry_points={"console_scripts": ["speedtestimage=speedtestimage.__main__:main"]},
     package_data={"speedtestimage": ["Courier.ttf"]},
 )
 
